@@ -498,9 +498,12 @@
             });
             
             // My posts button click
-            document.getElementById("my-posts-btn").addEventListener("click", () => {
-                window.location.href = "my-posts.html";
-            });
+            const myPostsBtn = document.getElementById("my-posts-btn");
+            if (myPostsBtn) {
+                myPostsBtn.addEventListener("click", () => {
+                    window.location.href = "my-posts.html";
+                });
+            }
             
             // Logout button click
             document.getElementById("logout-btn").addEventListener("click", () => {
