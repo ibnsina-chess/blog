@@ -768,12 +768,13 @@
             });
             
             // Function to handle post edit
+            if(editPostBtn) {
             editPostBtn.addEventListener('click', () => {
                 if (!currentUser || !currentPost || currentPost.author.id !== currentUser.uid) return;
                 
                 window.location.href = `edit-post.html?id=${postId}`;
             });
-            
+            }
             // Function to handle post delete
             deletePostBtn.addEventListener('click', async () => {
                 if (!currentUser || !currentPost || currentPost.author.id !== currentUser.uid) return;
