@@ -29,7 +29,7 @@ function initAuth(auth, database) {
     auth.onAuthStateChanged(user => {
         if (user) {
             // User is already logged in, redirect to puzzles
-           window.location.href = "index.html";
+           window.location.href = "index-authors.html";
            console.log("User already logged in:", user.displayName);
         }
     });
