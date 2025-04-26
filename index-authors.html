@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرسان الظلام ابن سينا - المدونة</title>
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="shortcut icon" href="https://i.ibb.co/Vwt7cPq/the-dark-knights-ibns-sina-chess-club-logo-1.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        .blog-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .welcome-message h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-message p {
+            font-size: 1.2rem;
+            color: #444;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid black;
+            border-radius: 10px;
+            box-shadow: 3px 3px 0 black;
+          
+        }
+     
+        .user-greeting {
+            font-size: 1.2rem;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .user-actions button {
+            padding: 8px 15px;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-actions button:hover {
+            background-color: black;
+            color: white;
+        }
+        
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .post-card {
+            border: 1px solid black;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 5px 5px 0 black;
+            transition: transform 0.3s ease;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .post-content {
+            padding: 20px;
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .post-title {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .post-excerpt {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        
+        .post-stats {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .post-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .post-tags {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .post-tag {
+            background-color: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #333;
+        }
+        
+        .read-more {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .read-more:hover {
+            background-color: black;
+            color: white;
+        }
+        
+        .create-post-btn {
+            position: fixed;
+            bottom: 200px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: white;
+            color: black;
+            border: solid 1px black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        .create-post-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .empty-posts {
+            text-align: center;
+            padding: 40px;
+            border: 1px dashed #ccc;
+            border-radius: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading::after {
+            content: "...";
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .blog-container {
+                padding: 10px;
+            }
+            
+            .welcome-message h1 {
+                font-size: 1.8rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .create-post-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <img src="https://i.ibb.co/Vwt7cPq/the-dark-knights-ibns-sina-chess-club-logo-1.png" alt="" class="logo">
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul>
+            <li><a href="index.html">المدونة</a></li>
+            <li><a href="members.html">الأعضاء</a></li>
+            <li><a href="classification.html">التصنيف</a></li>
+            <li><a href="evolution.html">التطور</a></li>
+            <li><a href="puzzles.html">الألغاز</a></li>
+        </ul>
+    </nav>
+
+    <div class="blog-container">
+        <div class="welcome-message">
+            <h1>مدونة نادي فرسان الظلام ابن سينا للشطرنج</h1>
+            <p>اكتشف آخر الأخبار، المقالات، والإنجازات من أعضاء النادي</p>
+        </div>
+        
+        <div class="user-info">
+            <div class="user-greeting">
+                <span >مرحباً، <span id="username">عضو النادي</span></span>
+            </div>
+            <div class="user-actions">
+                <!--
+                <button id="my-posts-btn">منشوراتي</button>
+                
+                -->
+                <button id="logout-btn">تسجيل الخروج</button>
+            </div>
+        </div>
+        
+        <div id="loading" class="loading">جاري تحميل المنشورات</div>
+        
+        <div id="posts-container" class="posts-container">
+            <!-- Posts will be loaded here dynamically -->
+        </div>
+        
+        <div id="empty-posts" class="empty-posts" style="display: none;">
+            <h3>لا توجد منشورات بعد</h3>
+            <p>كن أول من يشارك في المدونة!</p>
+        </div>
+        
+        <div class="create-post-btn" id="create-post-btn" title="إنشاء منشور جديد">
+            <i class="fas fa-plus"></i>
+        </div>
+    </div>
+
+    <footer>
+        <div class="horizontal-div">
+            <img src="https://i.ibb.co/xr0mz7L/buil-by.png" alt="">
+            <a href="https://github.com/abdelhakim-sahifa"> <i class="fa-brands fa-github"></i></a>
+        </div>
+        <ul class="footer-links">
+            <li><a href="members.html">الأعضاء</a></li>
+            <li><a href="classification.html">التصنيف</a></li>
+            <li><a href="evolution.html">التطور</a></li>
+            <li><a href="puzzles.html">الألغاز</a></li>
+        </ul>
+        <p>&copy; 2024 فرسان الظلام ابن سينا. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script>
+        // Firebase configuration (same as in auth.js)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCd9XbhKz-AYvVJtLCi2hVDBvyYsSGB89w",
+            authDomain: "chess-3596b.firebaseapp.com",
+            databaseURL: "https://chess-3596b-default-rtdb.firebaseio.com",
+            projectId: "chess-3596b",
+            storageBucket: "chess-3596b.firebasestorage.app",
+            messagingSenderId: "628293480183",
+            appId: "1:628293480183:web:ecd5f317c728cd1233edf2",
+            measurementId: "G-11H7GE4LT7"
+        };
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const database = firebase.database();
+            
+            // Toggle menu for mobile
+            function toggleMenu() {
+                const navLinks = document.querySelector("nav ul");
+                navLinks.classList.toggle("show");
+            }
+            
+            // Check authentication state
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    const userSemiId = user.email.split('@')[0]
+                    const arabicNamesRef = database.ref('translations/');
+                    arabicNamesRef.once('value').then(snapshot => {
+                        const arabicNames = snapshot.val();
+                        for (var name in arabicNames) {
+                            if(name.includes(userSemiId)){
+                                 arabicName = arabicNames[name].arabicName;
+                                 document.getElementById("username").textContent = arabicName  || user.displayName || user.email.split('@')[0];   
+
+                                break;}
+                        }
+
+                    
+                    });
+                    console.log("User signed in:", user.displayName || user.email);
+                    loadPosts();
+                } else {
+                    // User is signed out, redirect to auth page
+                    console.log("No user signed in, redirecting to auth page");
+                    window.location.href = "auth.html";
+                }
+            });
+            
+            // Load posts from Firebase
+            function loadPosts() {
+                const postsContainer = document.getElementById("posts-container");
+                const loadingElement = document.getElementById("loading");
+                const emptyPostsElement = document.getElementById("empty-posts");
+                
+                // Get posts from Firebase
+                database.ref('posts').orderByChild('timestamp').limitToLast(20).once('value')
+                    .then(snapshot => {
+                        loadingElement.style.display = "none";
+                        
+                        if (!snapshot.exists()) {
+                            // No posts found
+                            emptyPostsElement.style.display = "block";
+                            return;
+                        }
+                        
+                        // Convert to array and reverse for newest first
+                        const posts = [];
+                        snapshot.forEach(childSnapshot => {
+                            posts.push({
+                                id: childSnapshot.key,
+                                ...childSnapshot.val()
+                            });
+                        });
+                        
+                        // Sort by timestamp (newest first)
+                        posts.sort((a, b) => b.timestamp - a.timestamp);
+                        
+                        // Display each post
+                        posts.forEach(post => {
+                            if (post.visibility === "public" || auth.currentUser.uid === post.author.id) {
+                                postsContainer.appendChild(createPostElement(post));
+                            }
+                        });
+                        
+                        if (postsContainer.children.length === 0) {
+                            emptyPostsElement.style.display = "block";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error loading posts:", error);
+                        loadingElement.style.display = "none";
+                        loadingElement.textContent = "حدث خطأ أثناء تحميل المنشورات";
+                    });
+            }
+            
+            // Create post element
+            function createPostElement(post) {
+                const postElement = document.createElement("div");
+                postElement.className = "post-card";
+                
+                // Format date
+                const postDate = new Date(post.timestamp);
+                const formattedDate = `${postDate.getDate()}/${postDate.getMonth() + 1}/${postDate.getFullYear()}`;
+                
+                // Count likes
+                const likesCount = post.likes ? Object.keys(post.likes).length : 0;
+                
+                // Count comments
+                const commentsCount = post.comments ? Object.keys(post.comments).length : 0;
+                
+                // Get excerpt (first 150 characters)
+                const excerpt = post.content.length > 150 
+                    ? post.content.substring(0, 150) + "..." 
+                    : post.content;
+                
+                // Create HTML for post
+                postElement.innerHTML = `
+                    <img src="${post.coverImageUrl || '/api/placeholder/900/200'}" alt="${post.title}" class="post-image">
+                    <div class="post-content">
+                        <div class="post-header">
+                            <h2 class="post-title">${post.title}</h2>
+                        </div>
+                        <div class="post-meta">
+                            <div class="post-author">
+                                <i class="fas fa-user"></i>
+                                <span>${post.author.name}</span>
+                            </div>
+                            <div class="post-date">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>${formattedDate}</span>
+                            </div>
+                        </div>
+                        <div class="post-excerpt">
+                            ${excerpt}
+                        </div>
+                        <div class="post-tags">
+                            ${post.tags ? post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join('') : ''}
+                        </div>
+                        <div class="post-footer">
+                            <div class="post-stats">
+                                <div class="post-stat" onclick="likePost('${post.id}')">
+                                    <i class="far fa-heart"></i>
+                                    <span>${likesCount}</span>
+                                </div>
+                                <div class="post-stat">
+                                    <i class="far fa-comment"></i>
+                                    <span>${commentsCount}</span>
+                                </div>
+                            </div>
+                            <a href="post.html?id=${post.id}" class="read-more">قراءة المزيد</a>
+                        </div>
+                    </div>
+                `;
+                
+                return postElement;
+            }
+            
+            // Like a post
+            window.likePost = function(postId) {
+                const currentUser = auth.currentUser;
+                if (!currentUser) return;
+                
+                const likeRef = database.ref(`posts/${postId}/likes/${currentUser.uid}`);
+                
+                // Toggle like
+                likeRef.once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            // Remove like
+                            likeRef.remove();
+                        } else {
+                            // Add like
+                            likeRef.set(true);
+                        }
+                    });
+            }
+            
+            // Create new post button click
+            document.getElementById("create-post-btn").addEventListener("click", () => {
+                window.location.href = "create-post.html";
+            });
+            
+            // My posts button click
+            document.getElementById("my-posts-btn").addEventListener("click", () => {
+                window.location.href = "my-posts.html";
+            });
+            
+            // Logout button click
+            document.getElementById("logout-btn").addEventListener("click", () => {
+                auth.signOut()
+                    .then(() => {
+                        window.location.href = "auth.html";
+                    })
+                    .catch(error => {
+                        console.error("Error signing out:", error);
+                    });
+            });
+            
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+    </script>
+</body>
+</html>

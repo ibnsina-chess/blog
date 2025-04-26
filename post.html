@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرسان الظلام ابن سينا - عرض المنشور</title>
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="shortcut icon" href="https://i.ibb.co/Vwt7cPq/the-dark-knights-ibns-sina-chess-club-logo-1.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        .post-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .post-header {
+            margin-bottom: 30px;
+            text-align: right;
+        }
+        
+        .post-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .post-meta {
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .post-date {
+            font-size: 0.9rem;
+        }
+        
+        .post-cover-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .post-content {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            white-space: pre-line;
+            text-align: right;
+        }
+        
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .post-tag {
+            background-color: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .action-button:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .like-count {
+            font-weight: bold;
+        }
+        
+        .liked {
+            color: #d9534f;
+        }
+        
+        .comments-section {
+            margin-top: 40px;
+        }
+        
+        .comments-header {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .comment-form {
+            margin-bottom: 30px;
+        }
+        
+        .comment-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 10px;
+        }
+        
+        .comment-input:focus {
+            border-color: black;
+            outline: none;
+        }
+        
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .comment {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+        
+        .comment-time {
+            color: #999;
+            font-size: 0.85rem;
+        }
+        
+        .comment-content {
+            line-height: 1.6;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .comment-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .comment-actions button:hover {
+            color: black;
+        }
+        
+        .edit-options {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .edit-options button {
+            background: none;
+            border: 1px solid black;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn-edit:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .btn-delete {
+            color: #d9534f;
+            border-color: #d9534f;
+        }
+        
+        .btn-delete:hover {
+            background-color: #d9534f;
+            color: white;
+        }
+        
+        .not-found {
+            text-align: center;
+            margin: 100px 0;
+        }
+        
+        .not-found h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .not-found p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .back-to-posts {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-to-posts:hover {
+            background-color: black;
+            color: white;
+        }
+        
+        .loader {
+            text-align: center;
+            margin: 100px 0;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid black;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .post-container {
+                padding: 10px;
+                margin: 30px auto;
+            }
+            
+            .post-title {
+                font-size: 1.8rem;
+            }
+            
+            .post-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .post-actions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <img src="https://i.ibb.co/Vwt7cPq/the-dark-knights-ibns-sina-chess-club-logo-1.png" alt="" class="logo">
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul>
+            <li><a href="index.html">المدونة</a></li>
+            <li><a href="members.html">الأعضاء</a></li>
+            <li><a href="classification.html">التصنيف</a></li>
+            <li><a href="evolution.html">التطور</a></li>
+            <li><a href="puzzles.html">الألغاز</a></li>
+        </ul>
+    </nav>
+
+    <div class="post-container">
+        <div id="loader" class="loader">
+            <div class="loader-spinner"></div>
+            <p>جاري تحميل المنشور...</p>
+        </div>
+        
+        <div id="post-not-found" class="not-found" style="display: none;">
+            <h2>لم يتم العثور على المنشور</h2>
+            <p>قد يكون المنشور الذي تبحث عنه غير موجود أو تمت إزالته</p>
+            <a href="index.html" class="back-to-posts">العودة إلى المدونة</a>
+        </div>
+        
+        <div id="post-content-container" style="display: none;">
+            <div id="edit-options" class="edit-options" style="display: none;">
+                <!--
+                 <button id="edit-post-btn" class="btn-edit">
+                    <i class="fas fa-edit"></i> تعديل المنشور
+                </button>
+                -->
+               
+                <button id="delete-post-btn" class="btn-delete">
+                    <i class="fas fa-trash"></i> حذف المنشور
+                </button>
+            </div>
+            
+            <div class="post-header">
+                <h1 id="post-title" class="post-title"></h1>
+                <div class="post-meta">
+                    <div class="post-author">
+                        <div class="author-avatar" id="author-avatar"></div>
+                        <span id="author-name"></span>
+                    </div>
+                    <div class="post-date" id="post-date"></div>
+                </div>
+            </div>
+            
+            <img id="post-cover-image" class="post-cover-image" style="display: none;">
+            
+            <div id="post-content" class="post-content"></div>
+            
+            <div id="post-tags" class="post-tags" style="display: none;"></div>
+            
+            <div class="post-actions">
+                <button id="like-button" class="action-button">
+                    <i class="far fa-heart"></i>
+                    <span>إعجاب</span>
+                    <span id="like-count" class="like-count">0</span>
+                </button>
+                
+                <button class="action-button" onclick="scrollToComments()">
+                    <i class="far fa-comment"></i>
+                    <span>تعليق</span>
+                    <span id="comment-count">0</span>
+                </button>
+                
+                <button class="action-button" onclick="sharePost()">
+                    <i class="fas fa-share"></i>
+                    <span>مشاركة</span>
+                </button>
+            </div>
+            
+            <div id="comments-section" class="comments-section">
+                <h2 class="comments-header">التعليقات</h2>
+                
+                <div id="comment-form-container" class="comment-form">
+                    <textarea id="comment-input" class="comment-input" placeholder="اكتب تعليقك هنا..."></textarea>
+                    <button id="submit-comment" class="back-to-posts">إرسال التعليق</button>
+                </div>
+                
+                <div id="comments-list" class="comments-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="horizontal-div">
+            <img src="https://i.ibb.co/xr0mz7L/buil-by.png" alt="">
+            <a href="https://github.com/abdelhakim-sahifa"> <i class="fa-brands fa-github"></i></a>
+        </div>
+        <ul class="footer-links">
+            <li><a href="members.html">الأعضاء</a></li>
+            <li><a href="classification.html">التصنيف</a></li>
+            <li><a href="evolution.html">التطور</a></li>
+            <li><a href="puzzles.html">الألغاز</a></li>
+        </ul>
+        <p>&copy; 2024 فرسان الظلام ابن سينا. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCd9XbhKz-AYvVJtLCi2hVDBvyYsSGB89w",
+            authDomain: "chess-3596b.firebaseapp.com",
+            databaseURL: "https://chess-3596b-default-rtdb.firebaseio.com",
+            projectId: "chess-3596b",
+            storageBucket: "chess-3596b.appspot.com",
+            messagingSenderId: "628293480183",
+            appId: "1:628293480183:web:ecd5f317c728cd1233edf2",
+            measurementId: "G-11H7GE4LT7"
+        };
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const database = firebase.database();
+            
+            // Toggle menu for mobile
+            function toggleMenu() {
+                const navLinks = document.querySelector("nav ul");
+                navLinks.classList.toggle("show");
+            }
+            
+            // Get post ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            
+            // DOM Elements
+            const loader = document.getElementById('loader');
+            const postNotFound = document.getElementById('post-not-found');
+            const postContentContainer = document.getElementById('post-content-container');
+            const editOptions = document.getElementById('edit-options');
+            const postTitle = document.getElementById('post-title');
+            const authorAvatar = document.getElementById('author-avatar');
+            const authorName = document.getElementById('author-name');
+            const postDate = document.getElementById('post-date');
+            const postCoverImage = document.getElementById('post-cover-image');
+            const postContent = document.getElementById('post-content');
+            const postTags = document.getElementById('post-tags');
+            const likeButton = document.getElementById('like-button');
+            const likeCount = document.getElementById('like-count');
+            const commentCount = document.getElementById('comment-count');
+            const commentsSection = document.getElementById('comments-section');
+            const commentInput = document.getElementById('comment-input');
+            const submitComment = document.getElementById('submit-comment');
+            const commentsList = document.getElementById('comments-list');
+            const editPostBtn = document.getElementById('edit-post-btn');
+            const deletePostBtn = document.getElementById('delete-post-btn');
+            
+            // Current user and post data
+            let currentUser = null;
+            let currentPost = null;
+            
+            // Authentication state listener
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    
+                    // If we have post data, check if user is author to show edit options
+                    if (currentPost && currentPost.author && currentPost.author.id === user.uid) {
+                        editOptions.style.display = 'flex';
+                    }
+                    
+                    // Check if user liked the post
+                    checkUserLike();
+                    
+                    // Enable comment input
+                    commentInput.placeholder = 'اكتب تعليقك هنا...';
+                    commentInput.disabled = false;
+                    submitComment.disabled = false;
+                } else {
+                    // User is signed out, hide edit options
+                    editOptions.style.display = 'none';
+                    
+                    // Disable comment input
+                    commentInput.placeholder = 'يجب تسجيل الدخول للتعليق';
+                    commentInput.disabled = true;
+                    submitComment.disabled = true;
+                }
+            });
+            
+            // Function to fetch post data
+            async function fetchPostData() {
+                if (!postId) {
+                    showPostNotFound();
+                    return;
+                }
+                
+                try {
+                    const postRef = database.ref(`posts/${postId}`);
+                    const snapshot = await postRef.once('value');
+                    
+                    if (!snapshot.exists()) {
+                        showPostNotFound();
+                        return;
+                    }
+                    
+                    currentPost = snapshot.val();
+                    renderPost(currentPost);
+                    
+                    // Check if current user is the post author
+                    if (currentUser && currentPost.author && currentPost.author.id === currentUser.uid) {
+                        editOptions.style.display = 'flex';
+                    }
+                    
+                    // Fetch comments
+                    fetchComments();
+                    
+                    // Fetch likes count
+                    fetchLikesCount();
+                    
+                } catch (error) {
+                    console.error("Error fetching post:", error);
+                    showPostNotFound();
+                }
+            }
+            
+            // Function to render post
+            function renderPost(post) {
+                // Set post title
+                document.title = `فرسان الظلام ابن سينا - ${post.title}`;
+                postTitle.textContent = post.title;
+                
+                // Set author info
+                const authorInitial = post.author.name.charAt(0).toUpperCase();
+                authorAvatar.textContent = authorInitial;
+                authorName.textContent = post.author.name;
+                
+                // Set post date
+                const postDateTime = new Date(post.timestamp);
+                postDate.textContent = formatDate(postDateTime);
+                
+                // Set cover image if exists
+                if (post.coverImageUrl) {
+                    postCoverImage.src = post.coverImageUrl;
+                    postCoverImage.style.display = 'block';
+                }
+                
+                // Set post content
+                postContent.textContent = post.content;
+                
+                // Set tags if exist
+                if (post.tags && post.tags.length > 0) {
+                    postTags.innerHTML = '';
+                    postTags.style.display = 'flex';
+                    
+                    post.tags.forEach(tag => {
+                        const tagElement = document.createElement('div');
+                        tagElement.className = 'post-tag';
+                        tagElement.textContent = tag;
+                        postTags.appendChild(tagElement);
+                    });
+                }
+                
+                // Show post content
+                loader.style.display = 'none';
+                postContentContainer.style.display = 'block';
+            }
+            
+            // Function to fetch comments
+            async function fetchComments() {
+                try {
+                    const commentsRef = database.ref(`comments/${postId}`);
+                    commentsRef.on('value', (snapshot) => {
+                        const comments = snapshot.val();
+                        renderComments(comments);
+                    });
+                } catch (error) {
+                    console.error("Error fetching comments:", error);
+                }
+            }
+            
+            // Function to render comments
+            function renderComments(comments) {
+                commentsList.innerHTML = '';
+                
+                if (!comments) {
+                    commentCount.textContent = '0';
+                    return;
+                }
+                
+                const commentsArray = Object.entries(comments).map(([id, comment]) => ({
+                    id,
+                    ...comment
+                }));
+                
+                // Sort comments by timestamp (newest first)
+                commentsArray.sort((a, b) => b.timestamp - a.timestamp);
+                
+                commentCount.textContent = commentsArray.length.toString();
+                
+                commentsArray.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.id = `comment-${comment.id}`;
+                    
+                    const authorInitial = comment.author.name.charAt(0).toUpperCase();
+                    
+                    commentElement.innerHTML = `
+                        <div class="comment-header">
+                            <div class="comment-author">
+                                <div class="author-avatar">${authorInitial}</div>
+                                <span>${comment.author.name}</span>
+                            </div>
+                            <div class="comment-time">${formatDate(new Date(comment.timestamp))}</div>
+                        </div>
+                        <div class="comment-content">${comment.content}</div>
+                        <div class="comment-actions">
+                            <button onclick="likeComment('${comment.id}')">
+                                <i class="far fa-heart"></i>
+                                <span>إعجاب</span>
+                            </button>
+                            ${currentUser && comment.author.id === currentUser.uid ? `
+                                <button onclick="deleteComment('${comment.id}')">
+                                    <i class="fas fa-trash"></i>
+                                    <span>حذف</span>
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    commentsList.appendChild(commentElement);
+                });
+            }
+            
+            // Function to submit a comment
+            submitComment.addEventListener('click', async () => {
+                if (!currentUser) {
+                    alert('يجب تسجيل الدخول لإضافة تعليق');
+                    return;
+                }
+                
+                const commentText = commentInput.value.trim();
+                if (!commentText) return;
+                
+                try {
+                    // Get user Arabic name if available
+                    let authorName = currentUser.displayName || currentUser.email.split('@')[0];
+                    const userSemiId = currentUser.email.split('@')[0];
+                    
+                    // Try to get Arabic name from translations
+                    try {
+                        const arabicNamesRef = database.ref('translations/');
+                        const snapshot = await arabicNamesRef.once('value');
+                        const arabicNames = snapshot.val();
+                        
+                        for (let name in arabicNames) {
+                            if (name.includes(userSemiId)) {
+                                authorName = arabicNames[name].arabicName || authorName;
+                                break;
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error getting Arabic name:", error);
+                    }
+                    
+                    const comment = {
+                        content: commentText,
+                        author: {
+                            id: currentUser.uid,
+                            name: authorName,
+                            email: currentUser.email
+                        },
+                        timestamp: Date.now()
+                    };
+                    
+                    const newCommentRef = database.ref(`comments/${postId}`).push();
+                    await newCommentRef.set(comment);
+                    
+                    // Clear comment input
+                    commentInput.value = '';
+                    
+                } catch (error) {
+                    console.error("Error submitting comment:", error);
+                    alert('حدث خطأ أثناء إضافة التعليق');
+                }
+            });
+            
+            // Function to delete comment
+            window.deleteComment = async function(commentId) {
+                if (!currentUser) return;
+                
+                if (confirm('هل أنت متأكد من حذف هذا التعليق؟')) {
+                    try {
+                        await database.ref(`comments/${postId}/${commentId}`).remove();
+                    } catch (error) {
+                        console.error("Error deleting comment:", error);
+                        alert('حدث خطأ أثناء حذف التعليق');
+                    }
+                }
+            };
+            
+            // Function to fetch likes count
+            async function fetchLikesCount() {
+                try {
+                    const likesRef = database.ref(`likes/${postId}`);
+                    likesRef.on('value', (snapshot) => {
+                        const likes = snapshot.val();
+                        const likesCount = likes ? Object.keys(likes).length : 0;
+                        likeCount.textContent = likesCount.toString();
+                        
+                        // Check if current user liked the post
+                        checkUserLike();
+                    });
+                } catch (error) {
+                    console.error("Error fetching likes:", error);
+                }
+            }
+            
+            // Function to check if current user liked the post
+            function checkUserLike() {
+                if (!currentUser) return;
+                
+                const likesRef = database.ref(`likes/${postId}/${currentUser.uid}`);
+                likesRef.once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        // User already liked the post
+                        likeButton.querySelector('i').className = 'fas fa-heart';
+                        likeButton.classList.add('liked');
+                    } else {
+                        // User has not liked the post
+                        likeButton.querySelector('i').className = 'far fa-heart';
+                        likeButton.classList.remove('liked');
+                    }
+                });
+            }
+            
+            // Like button functionality
+            likeButton.addEventListener('click', async () => {
+                if (!currentUser) {
+                    alert('يجب تسجيل الدخول للإعجاب بالمنشور');
+                    return;
+                }
+                
+                const likesRef = database.ref(`likes/${postId}/${currentUser.uid}`);
+                
+                try {
+                    const snapshot = await likesRef.once('value');
+                    
+                    if (snapshot.exists()) {
+                        // User already liked the post, remove like
+                        await likesRef.remove();
+                    } else {
+                        // User has not liked the post, add like
+                        await likesRef.set({
+                            timestamp: Date.now()
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error toggling like:", error);
+                }
+            });
+            
+            // Function to handle post edit
+            editPostBtn.addEventListener('click', () => {
+                if (!currentUser || !currentPost || currentPost.author.id !== currentUser.uid) return;
+                
+                window.location.href = `edit-post.html?id=${postId}`;
+            });
+            
+            // Function to handle post delete
+            deletePostBtn.addEventListener('click', async () => {
+                if (!currentUser || !currentPost || currentPost.author.id !== currentUser.uid) return;
+                
+                if (confirm('هل أنت متأكد من حذف هذا المنشور؟ هذا الإجراء لا يمكن التراجع عنه.')) {
+                    try {
+                        // Delete post
+                        await database.ref(`posts/${postId}`).remove();
+                        
+                        // Delete comments
+                        await database.ref(`comments/${postId}`).remove();
+                        
+                        // Delete likes
+                        await database.ref(`likes/${postId}`).remove();
+                        
+                        // Redirect to blog page
+                        window.location.href = 'index.html';
+                    } catch (error) {
+                        console.error("Error deleting post:", error);
+                        alert('حدث خطأ أثناء حذف المنشور');
+                    }
+                }
+            });
+            
+            // Share post functionality
+            window.sharePost = function() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: currentPost.title,
+                        text: `تحقق من هذا المنشور في نادي فرسان الظلام ابن سينا: ${currentPost.title}`,
+                        url: window.location.href
+                    })
+                    .catch(error => console.error('Error sharing:', error));
+                } else {
+                    // Fallback - copy URL to clipboard
+                    const textArea = document.createElement('textarea');
+                    textArea.value = window.location.href;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('تم نسخ رابط المنشور إلى الحافظة');
+                }
+            };
+            
+            // Scroll to comments section
+            window.scrollToComments = function() {
+                commentsSection.scrollIntoView({ behavior: 'smooth' });
+            };
+            
+            // Helper function to format date
+            function formatDate(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('ar', options);
+        }
+
+            
+            // Helper function to show "post not found" message
+            function showPostNotFound() {
+                loader.style.display = 'none';
+                postContentContainer.style.display = 'none';
+                postNotFound.style.display = 'block';
+            }
+            
+            // Load post data when page loads
+            window.addEventListener('DOMContentLoaded', fetchPostData);
+            
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+    </script>
+</body>
+</html>

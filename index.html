@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرسان الظلام ابن سينا - المدونة</title>
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="shortcut icon" href="https://i.ibb.co/Vwt7cPq/the-dark-knights-ibns-sina-chess-club-logo-1.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        .blog-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .welcome-message h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-message p {
+            font-size: 1.2rem;
+            color: #444;
+        }
+        
+        .action-banner {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid black;
+            border-radius: 10px;
+            box-shadow: 3px 3px 0 black;
+            background-color: #f9f9f9;
+        }
+        
+        .banner-text {
+            font-size: 1.1rem;
+        }
+        
+        .banner-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .banner-actions button {
+            padding: 8px 15px;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .banner-actions button:hover {
+            background-color: black;
+            color: white;
+        }
+        
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .post-card {
+            border: 1px solid black;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 5px 5px 0 black;
+            transition: transform 0.3s ease;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .post-content {
+            padding: 20px;
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .post-title {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .post-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .post-excerpt {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        
+        .post-stats {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .post-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .post-tags {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .post-tag {
+            background-color: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #333;
+        }
+        
+        .read-more {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .read-more:hover {
+            background-color: black;
+            color: white;
+        }
+        
+        .empty-posts {
+            text-align: center;
+            padding: 40px;
+            border: 1px dashed #ccc;
+            border-radius: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading::after {
+            content: "...";
+            animation: dots 1.5s infinite;
+        }
+        
+        .filter-section {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 200px;
+        }
+        
+        .search-box button {
+            padding: 8px 15px;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .search-box button:hover {
+            background-color: black;
+            color: white;
+        }
+        
+        .tag-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tag-filter {
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .tag-filter.active {
+            background-color: black;
+            color: white;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .pagination-btn {
+            padding: 5px 15px;
+            background-color: white;
+            color: black;
+            border: 1px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .pagination-btn.active {
+            background-color: black;
+            color: white;
+        }
+        
+        .pagination-btn:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .blog-container {
+                padding: 10px;
+            }
+            
+            .welcome-message h1 {
+                font-size: 1.8rem;
+            }
+            
+            .action-banner {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .search-box input {
+                flex-grow: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <img src="https://i.ibb.co/Vwt7cPq/the-dark-knights-ibns-sina-chess-club-logo-1.png" alt="" class="logo">
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul>
+            <li><a href="index.html">المدونة</a></li>
+            <li><a href="members.html">الأعضاء</a></li>
+            <li><a href="classification.html">التصنيف</a></li>
+            <li><a href="evolution.html">التطور</a></li>
+            <li><a href="puzzles.html">الألغاز</a></li>
+        </ul>
+    </nav>
+
+    <div class="blog-container">
+        <div class="welcome-message">
+            <h1>مدونة نادي فرسان الظلام ابن سينا للشطرنج</h1>
+            <p>اكتشف آخر الأخبار، المقالات، والإنجازات من أعضاء النادي</p>
+        </div>
+        
+        <div class="action-banner">
+            <div class="banner-text">
+                هل أنت من أعضاء النادي؟ سجل دخولك للمشاركة في المدونة وإضافة منشورات جديدة!
+            </div>
+            <div class="banner-actions">
+                <button id="login-btn" onclick="window.location.href='auth.html'">تسجيل الدخول</button>
+            </div>
+        </div>
+        
+        <div class="filter-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="ابحث في المنشورات...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="tag-filters" id="tag-filters">
+                <!-- Tags will be loaded here dynamically -->
+            </div>
+        </div>
+        
+        <div id="loading" class="loading">جاري تحميل المنشورات</div>
+        
+        <div id="posts-container" class="posts-container">
+            <!-- Posts will be loaded here dynamically -->
+        </div>
+        
+        <div id="empty-posts" class="empty-posts" style="display: none;">
+            <h3>لا توجد منشورات متاحة</h3>
+            <p>يرجى المحاولة مرة أخرى لاحقًا</p>
+        </div>
+        
+        <div class="pagination" id="pagination">
+            <!-- Pagination will be added here dynamically -->
+        </div>
+    </div>
+
+    <footer>
+        <div class="horizontal-div">
+            <img src="https://i.ibb.co/xr0mz7L/buil-by.png" alt="">
+            <a href="https://github.com/abdelhakim-sahifa"> <i class="fa-brands fa-github"></i></a>
+        </div>
+        <ul class="footer-links">
+            <li><a href="members.html">الأعضاء</a></li>
+            <li><a href="classification.html">التصنيف</a></li>
+            <li><a href="evolution.html">التطور</a></li>
+            <li><a href="puzzles.html">الألغاز</a></li>
+        </ul>
+        <p>&copy; 2024 فرسان الظلام ابن سينا. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCd9XbhKz-AYvVJtLCi2hVDBvyYsSGB89w",
+            authDomain: "chess-3596b.firebaseapp.com",
+            databaseURL: "https://chess-3596b-default-rtdb.firebaseio.com",
+            projectId: "chess-3596b",
+            storageBucket: "chess-3596b.firebasestorage.app",
+            messagingSenderId: "628293480183",
+            appId: "1:628293480183:web:ecd5f317c728cd1233edf2",
+            measurementId: "G-11H7GE4LT7"
+        };
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+            
+            // Toggle menu for mobile
+            function toggleMenu() {
+                const navLinks = document.querySelector("nav ul");
+                navLinks.classList.toggle("show");
+            }
+            
+            // State variables for filtering and pagination
+            let allPosts = [];
+            let filteredPosts = [];
+            let currentPage = 1;
+            const postsPerPage = 5;
+            let activeTagFilter = null;
+            let searchQuery = '';
+            
+            // Load all tags for filtering
+            function loadTags() {
+                const tagsContainer = document.getElementById("tag-filters");
+                
+                // Add "All" tag filter
+                const allTagElement = document.createElement("div");
+                allTagElement.className = "tag-filter active";
+                allTagElement.textContent = "الكل";
+                allTagElement.addEventListener("click", () => {
+                    setActiveTag(null);
+                });
+                tagsContainer.appendChild(allTagElement);
+                
+                // Extract unique tags from posts
+                const uniqueTags = new Set();
+                allPosts.forEach(post => {
+                    if (post.tags && Array.isArray(post.tags)) {
+                        post.tags.forEach(tag => uniqueTags.add(tag));
+                    }
+                });
+                
+                // Create tag filter elements
+                uniqueTags.forEach(tag => {
+                    const tagElement = document.createElement("div");
+                    tagElement.className = "tag-filter";
+                    tagElement.textContent = tag;
+                    tagElement.addEventListener("click", () => {
+                        setActiveTag(tag);
+                    });
+                    tagsContainer.appendChild(tagElement);
+                });
+            }
+            
+            // Set active tag filter
+            function setActiveTag(tag) {
+                activeTagFilter = tag;
+                
+                // Update UI
+                const tagElements = document.querySelectorAll(".tag-filter");
+                tagElements.forEach(el => {
+                    if ((el.textContent === "الكل" && tag === null) || 
+                        (el.textContent === tag)) {
+                        el.classList.add("active");
+                    } else {
+                        el.classList.remove("active");
+                    }
+                });
+                
+                // Apply filters and reload posts
+                applyFilters();
+            }
+            
+            // Apply all filters (tag and search)
+            function applyFilters() {
+                filteredPosts = allPosts.filter(post => {
+                    // Filter by tag if active
+                    const passesTagFilter = !activeTagFilter || 
+                        (post.tags && post.tags.includes(activeTagFilter));
+                    
+                    // Filter by search query if present
+                    const passesSearchFilter = !searchQuery || 
+                        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        post.content.toLowerCase().includes(searchQuery.toLowerCase());
+                    
+                    return passesTagFilter && passesSearchFilter;
+                });
+                
+                // Reset to first page and display posts
+                currentPage = 1;
+                displayPosts();
+                updatePagination();
+            }
+            
+            // Search functionality
+            document.getElementById("search-btn").addEventListener("click", () => {
+                searchQuery = document.getElementById("search-input").value.trim();
+                applyFilters();
+            });
+            
+            // Search on enter key
+            document.getElementById("search-input").addEventListener("keyup", (event) => {
+                if (event.key === "Enter") {
+                    searchQuery = document.getElementById("search-input").value.trim();
+                    applyFilters();
+                }
+            });
+            
+            // Load posts from Firebase
+            function loadPosts() {
+                const loadingElement = document.getElementById("loading");
+                const emptyPostsElement = document.getElementById("empty-posts");
+                
+                // Get public posts from Firebase
+                database.ref('posts').orderByChild('timestamp').once('value')
+                    .then(snapshot => {
+                        loadingElement.style.display = "none";
+                        
+                        if (!snapshot.exists()) {
+                            // No posts found
+                            emptyPostsElement.style.display = "block";
+                            return;
+                        }
+                        
+                        // Convert to array
+                        allPosts = [];
+                        snapshot.forEach(childSnapshot => {
+                            const post = {
+                                id: childSnapshot.key,
+                                ...childSnapshot.val()
+                            };
+                            
+                            // Only include public posts
+                            if (post.visibility === "public") {
+                                allPosts.push(post);
+                            }
+                        });
+                        
+                        // Sort by timestamp (newest first)
+                        allPosts.sort((a, b) => b.timestamp - a.timestamp);
+                        
+                        // Initialize filtered posts to all posts
+                        filteredPosts = [...allPosts];
+                        
+                        // Load tags for filtering
+                        loadTags();
+                        
+                        // Display posts and pagination
+                        displayPosts();
+                        updatePagination();
+                        
+                        if (allPosts.length === 0) {
+                            emptyPostsElement.style.display = "block";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error loading posts:", error);
+                        loadingElement.style.display = "none";
+                        loadingElement.textContent = "حدث خطأ أثناء تحميل المنشورات";
+                    });
+            }
+            
+            // Display posts for current page
+            function displayPosts() {
+                const postsContainer = document.getElementById("posts-container");
+                const emptyPostsElement = document.getElementById("empty-posts");
+                
+                // Clear current posts
+                postsContainer.innerHTML = "";
+                
+                // Calculate start and end indices for current page
+                const startIndex = (currentPage - 1) * postsPerPage;
+                const endIndex = startIndex + postsPerPage;
+                const postsToShow = filteredPosts.slice(startIndex, endIndex);
+                
+                if (postsToShow.length === 0) {
+                    emptyPostsElement.style.display = "block";
+                    return;
+                }
+                
+                emptyPostsElement.style.display = "none";
+                
+                // Display each post
+                postsToShow.forEach(post => {
+                    postsContainer.appendChild(createPostElement(post));
+                });
+            }
+            
+            // Update pagination controls
+            function updatePagination() {
+                const paginationContainer = document.getElementById("pagination");
+                paginationContainer.innerHTML = "";
+                
+                const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+                
+                if (totalPages <= 1) {
+                    return;
+                }
+                
+                // Previous button
+                if (currentPage > 1) {
+                    const prevButton = document.createElement("button");
+                    prevButton.className = "pagination-btn";
+                    prevButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                    prevButton.addEventListener("click", () => {
+                        currentPage--;
+                        displayPosts();
+                        updatePagination();
+                    });
+                    paginationContainer.appendChild(prevButton);
+                }
+                
+                // Page numbers
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                // Adjust startPage if we're near the end
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageButton = document.createElement("button");
+                    pageButton.className = i === currentPage ? "pagination-btn active" : "pagination-btn";
+                    pageButton.textContent = i;
+                    pageButton.addEventListener("click", () => {
+                        currentPage = i;
+                        displayPosts();
+                        updatePagination();
+                    });
+                    paginationContainer.appendChild(pageButton);
+                }
+                
+                // Next button
+                if (currentPage < totalPages) {
+                    const nextButton = document.createElement("button");
+                    nextButton.className = "pagination-btn";
+                    nextButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                    nextButton.addEventListener("click", () => {
+                        currentPage++;
+                        displayPosts();
+                        updatePagination();
+                    });
+                    paginationContainer.appendChild(nextButton);
+                }
+            }
+            
+            // Create post element
+            function createPostElement(post) {
+                const postElement = document.createElement("div");
+                postElement.className = "post-card";
+                
+                // Format date
+                const postDate = new Date(post.timestamp);
+                const formattedDate = `${postDate.getDate()}/${postDate.getMonth() + 1}/${postDate.getFullYear()}`;
+                
+                // Count likes
+                const likesCount = post.likes ? Object.keys(post.likes).length : 0;
+                
+                // Count comments
+                const commentsCount = post.comments ? Object.keys(post.comments).length : 0;
+                
+                // Get excerpt (first 150 characters)
+                const excerpt = post.content.length > 150 
+                    ? post.content.substring(0, 150) + "..." 
+                    : post.content;
+                
+                // Create HTML for post
+                postElement.innerHTML = `
+                    <img src="${post.coverImageUrl || '/api/placeholder/900/200'}" alt="${post.title}" class="post-image">
+                    <div class="post-content">
+                        <div class="post-header">
+                            <h2 class="post-title">${post.title}</h2>
+                        </div>
+                        <div class="post-meta">
+                            <div class="post-author">
+                                <i class="fas fa-user"></i>
+                                <span>${post.author.name}</span>
+                            </div>
+                            <div class="post-date">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>${formattedDate}</span>
+                            </div>
+                        </div>
+                        <div class="post-excerpt">
+                            ${excerpt}
+                        </div>
+                        <div class="post-tags">
+                            ${post.tags ? post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join('') : ''}
+                        </div>
+                        <div class="post-footer">
+                            <div class="post-stats">
+                                <div class="post-stat">
+                                    <i class="far fa-heart"></i>
+                                    <span>${likesCount}</span>
+                                </div>
+                                <div class="post-stat">
+                                    <i class="far fa-comment"></i>
+                                    <span>${commentsCount}</span>
+                                </div>
+                            </div>
+                            <a href="post-view.html?id=${post.id}" class="read-more">قراءة المزيد</a>
+                        </div>
+                    </div>
+                `;
+                
+                return postElement;
+            }
+            
+            // Initialize
+            document.addEventListener('DOMContentLoaded', function() {
+                loadPosts();
+            });
+            
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+    </script>
+</body>
+</html>
